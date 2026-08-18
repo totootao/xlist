@@ -75,6 +75,10 @@ dev_dependencies:
   json_model: ^1.0.0
   json_serializable: ^6.5.4
 
+# 兼容 Dart 3.5 (Flutter 3.24): win32 3.x 与新 SDK 不兼容
+dependency_overrides:
+  win32: ^5.0.0
+
 flutter_native_splash:
   color: "#FFFFFF"
   color_dark: "#121212"
