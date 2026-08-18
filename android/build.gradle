@@ -27,23 +27,24 @@ subprojects {
 subprojects {
     project.evaluationDependsOn(':app')
 
-    // 强制所有插件模块使用 compileSdk 34, 修复 lStar 资源错误
-    afterEvaluate { project ->
-        if (project.hasProperty('android') && project.android != null) {
-            try {
-                project.android.compileSdkVersion 34
-            } catch (ignored) {
-                try {
-                    project.android.compileSdk = 34
-                } catch (ignored2) {}
-            }
-        }
-    }
-
     // 统一 Kotlin 依赖版本
     project.configurations.all {
         resolutionStrategy {
             force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+        }
+    }
+}
+
+// 强制所有插件模块使用 compileSdk 34, 修复 lStar 资源错误
+// (在插件应用时立即覆盖, 避免 afterEvaluate 时序问题)
+subprojects {
+    plugins.withId('com.android.library') {
+        try {
+            project.android.compileSdkVersion 34
+        } catch (ignored) {
+            try {
+                project.android.compileSdk = 34
+            } catch (ignored2) {}
         }
     }
 }
