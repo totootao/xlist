@@ -82,6 +82,7 @@ const Map<String, String> zh_Hans = {
   'toast_switch_loading': '切换中...',
   'toast_switch_subtitle_fail': '切换字幕失败',
   'toast_favorite_success': '已加入收藏',
+  'toast_favorite_remove': '已取消收藏',
 
   // Dialogs
   'dialog_prompt_title': '提示',
@@ -121,6 +122,7 @@ const Map<String, String> zh_Hans = {
 
   // Pages
   'homepage_title': '文件管理',
+  'homepage_tab_files': '文件',
   'homepage_empty_server_title': '请先新建一个 Alist 服务器',
   'homepage_empty_server_help': '了解 Alist ?',
   'homepage_empty_server_button': '新建',

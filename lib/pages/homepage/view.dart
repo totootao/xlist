@@ -14,6 +14,8 @@ import 'package:xlist/components/index.dart';
 import 'package:xlist/routes/app_pages.dart';
 import 'package:xlist/pages/homepage/index.dart';
 import 'package:xlist/database/entity/index.dart';
+import 'package:xlist/pages/setting/favorite/index.dart';
+import 'package:xlist/pages/setting/recent/index.dart';
 import 'package:xlist/services/browser_service.dart';
 
 class Homepage extends GetView<HomepageController> {
@@ -168,24 +170,79 @@ class Homepage extends GetView<HomepageController> {
     );
   }
 
+  // 底部导航栏
+  Widget _buildTabBar() {
+    return SafeArea(
+      top: false,
+      child: Obx(
+        () => CupertinoTabBar(
+          backgroundColor:
+              Get.isDarkMode ? Color.fromARGB(255, 18, 18, 18) : Colors.white,
+          border: Border.all(width: 0, color: Colors.transparent),
+          currentIndex: controller.selectedIndex.value,
+          onTap: controller.changeTab,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.folder_fill,
+                  size: CommonUtils.navIconSize),
+              label: 'homepage_tab_files'.tr,
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.star_fill,
+                  size: CommonUtils.navIconSize),
+              label: 'favorite'.tr,
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.clock_fill,
+                  size: CommonUtils.navIconSize),
+              label: 'recent'.tr,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       child: SafeArea(
-        child: EasyRefresh(
-          controller: controller.easyRefreshController,
-          header: CupertinoHeader(
-              position: IndicatorPosition.locator, safeArea: false),
-          footer: CupertinoFooter(position: IndicatorPosition.locator),
-          onRefresh: () async {
-            await HapticFeedback.selectionClick();
-            await controller.getObjectList();
-            controller.easyRefreshController.finishRefresh();
-            controller.easyRefreshController.resetFooter();
-          },
-          child: _buildCustomScrollView(),
+        bottom: false,
+        child: Column(
+          children: [
+            // 标签页内容
+            Expanded(
+              child: Obx(
+                () => controller.selectedIndex.value == 0
+                    ? _buildFilesTab()
+                    : controller.selectedIndex.value == 1
+                        ? FavoritePage(showBackButton: false)
+                        : RecentPage(showBackButton: false),
+              ),
+            ),
+
+            // 底部导航栏
+            _buildTabBar(),
+          ],
         ),
       ),
+    );
+  }
+
+  // 文件标签页 (原首页内容)
+  Widget _buildFilesTab() {
+    return EasyRefresh(
+      controller: controller.easyRefreshController,
+      header: CupertinoHeader(
+          position: IndicatorPosition.locator, safeArea: false),
+      footer: CupertinoFooter(position: IndicatorPosition.locator),
+      onRefresh: () async {
+        await HapticFeedback.selectionClick();
+        await controller.getObjectList();
+        controller.easyRefreshController.finishRefresh();
+        controller.easyRefreshController.resetFooter();
+      },
+      child: _buildCustomScrollView(),
     );
   }
 }

@@ -10,6 +10,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:xlist/services/index.dart';
 import 'package:xlist/storages/index.dart';
 import 'package:xlist/constants/index.dart';
+import 'package:xlist/database/entity/index.dart';
 
 // 全局配置
 class Global {
@@ -40,6 +41,30 @@ class Global {
     await Get.putAsync(() => DownloadService().init());
     await Get.putAsync(() => DeviceInfoService().init());
     await Get.putAsync(() => PlayerNotificationService().init());
+
+    // 播种默认服务器 (未配置任何服务器时自动添加并登录)
+    try {
+      final userStorage = Get.find<UserStorage>();
+      if (userStorage.serverId.val == 0) {
+        final servers =
+            await DatabaseService.to.database.serverDao.findAllServer();
+        if (servers.isEmpty) {
+          final serverId = await DatabaseService.to.database.serverDao
+              .insertServer(ServerEntity(
+            url: DefaultServer.url,
+            type: ServerType.ALIST,
+            username: DefaultServer.username,
+            password: DefaultServer.password,
+          ));
+
+          // 重置本地服务器信息, 首页启动时会自动登录获取 token
+          userStorage.serverId.val = serverId;
+          userStorage.serverUrl.val = DefaultServer.url;
+        }
+      }
+    } catch (e) {
+      debugPrint('seed default server failed: $e');
+    }
 
     // 读取设备第一次打开
     final isFirstOpen = Get.find<PreferencesStorage>().isFirstOpen;

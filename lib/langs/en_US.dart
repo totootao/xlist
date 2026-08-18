@@ -82,6 +82,7 @@ const Map<String, String> en_US = {
   'toast_switch_loading': 'Switching...',
   'toast_switch_subtitle_fail': 'Switch subtitle failed',
   'toast_favorite_success': 'Added to Favorite',
+  'toast_favorite_remove': 'Removed from Favorite',
 
   // Dialogs
   'dialog_prompt_title': 'Prompt',
@@ -124,6 +125,7 @@ const Map<String, String> en_US = {
 
   // Pages
   'homepage_title': 'File Manager',
+  'homepage_tab_files': 'Files',
   'homepage_empty_server_title': 'Please create a Alist server',
   'homepage_empty_server_help': 'Learn about Alist?',
   'homepage_empty_server_button': 'New Server',

@@ -26,6 +26,12 @@ class RecentEntity {
   @ColumnInfo(name: 'size')
   final int size;
 
+  @ColumnInfo(name: 'thumb')
+  final String? thumb;
+
+  @ColumnInfo(name: 'sign')
+  final String? sign;
+
   @ColumnInfo(name: 'updated_at')
   final int updatedAt;
 
@@ -36,6 +42,8 @@ class RecentEntity {
     required this.name,
     required this.type,
     required this.size,
+    this.thumb,
+    this.sign,
     required this.updatedAt,
   });
 }

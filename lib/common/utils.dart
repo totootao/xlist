@@ -237,8 +237,10 @@ class CommonUtils {
           serverId: serverId,
           path: path,
           name: name,
-          type: recent.type,
-          size: recent.size,
+          type: object.type ?? recent.type,
+          size: object.size ?? recent.size,
+          thumb: object.thumb ?? recent.thumb,
+          sign: object.sign ?? recent.sign,
           updatedAt: DateTime.now().millisecondsSinceEpoch,
         ),
       );
@@ -250,18 +252,20 @@ class CommonUtils {
           name: name,
           type: object.type!,
           size: object.size!,
+          thumb: object.thumb,
+          sign: object.sign,
           updatedAt: DateTime.now().millisecondsSinceEpoch,
         ),
       );
     }
   }
 
-  /// 加入收藏
+  /// 加入收藏 (重复收藏时取消收藏)
   ///
   /// [object] 对象
   /// [path] 路径
   /// [name] 名称
-  static Future<void> addFavorite(
+  static Future<bool> addFavorite(
     ObjectModel object,
     String path,
     String name,
@@ -272,32 +276,43 @@ class CommonUtils {
     final favorite = await DatabaseService.to.database.favoriteDao
         .findFavoriteByServerIdAndPath(serverId, path, name);
 
-    // 更新 or 创建
+    // 已存在则取消收藏
     if (favorite != null) {
-      await DatabaseService.to.database.favoriteDao.updateFavorite(
-        FavoriteEntity(
-          id: favorite.id,
-          serverId: serverId,
-          path: path,
-          name: name,
-          type: favorite.type,
-          size: favorite.size,
-          updatedAt: DateTime.now().millisecondsSinceEpoch,
-        ),
-      );
-    } else {
-      await DatabaseService.to.database.favoriteDao.insertFavorite(
-        FavoriteEntity(
-          serverId: serverId,
-          path: path,
-          name: name,
-          type: object.type!,
-          size: object.size!,
-          updatedAt: DateTime.now().millisecondsSinceEpoch,
-        ),
-      );
+      await DatabaseService.to.database.favoriteDao
+          .deleteFavoriteById(favorite.id!);
+      SmartDialog.showToast('toast_favorite_remove'.tr);
+      return false;
     }
 
+    // 创建收藏
+    await DatabaseService.to.database.favoriteDao.insertFavorite(
+      FavoriteEntity(
+        serverId: serverId,
+        path: path,
+        name: name,
+        type: object.type!,
+        size: object.size!,
+        thumb: object.thumb,
+        sign: object.sign,
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
+
     SmartDialog.showToast('toast_favorite_success'.tr);
+    return true;
+  }
+
+  /// 判断是否已收藏
+  ///
+  /// [path] 路径
+  /// [name] 名称
+  static Future<bool> isFavorite(
+    String path,
+    String name,
+  ) async {
+    final serverId = Get.find<UserStorage>().serverId.val;
+    final favorite = await DatabaseService.to.database.favoriteDao
+        .findFavoriteByServerIdAndPath(serverId, path, name);
+    return favorite != null;
   }
 }

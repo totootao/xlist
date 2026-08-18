@@ -79,7 +79,7 @@ class _$XlistDatabase extends XlistDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 3,
+      version: 4,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -257,6 +257,8 @@ class _$RecentDao extends RecentDao {
                   'name': item.name,
                   'type': item.type,
                   'size': item.size,
+                  'thumb': item.thumb,
+                  'sign': item.sign,
                   'updated_at': item.updatedAt
                 }),
         _recentEntityUpdateAdapter = UpdateAdapter(
@@ -270,6 +272,8 @@ class _$RecentDao extends RecentDao {
                   'name': item.name,
                   'type': item.type,
                   'size': item.size,
+                  'thumb': item.thumb,
+                  'sign': item.sign,
                   'updated_at': item.updatedAt
                 });
 
@@ -291,7 +295,7 @@ class _$RecentDao extends RecentDao {
   ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM recent WHERE server_id = ?1 ORDER BY updated_at DESC LIMIT ?2 OFFSET ?3',
-        mapper: (Map<String, Object?> row) => RecentEntity(id: row['id'] as int?, serverId: row['server_id'] as int, path: row['path'] as String, name: row['name'] as String, type: row['type'] as int, size: row['size'] as int, updatedAt: row['updated_at'] as int),
+        mapper: (Map<String, Object?> row) => RecentEntity(id: row['id'] as int?, serverId: row['server_id'] as int, path: row['path'] as String, name: row['name'] as String, type: row['type'] as int, size: row['size'] as int, thumb: row['thumb'] as String?, sign: row['sign'] as String?, updatedAt: row['updated_at'] as int),
         arguments: [serverId, limit, offset]);
   }
 
@@ -310,6 +314,8 @@ class _$RecentDao extends RecentDao {
             name: row['name'] as String,
             type: row['type'] as int,
             size: row['size'] as int,
+            thumb: row['thumb'] as String?,
+            sign: row['sign'] as String?,
             updatedAt: row['updated_at'] as int),
         arguments: [serverId, path, name]);
   }
@@ -549,6 +555,8 @@ class _$FavoriteDao extends FavoriteDao {
                   'name': item.name,
                   'type': item.type,
                   'size': item.size,
+                  'thumb': item.thumb,
+                  'sign': item.sign,
                   'updated_at': item.updatedAt
                 }),
         _favoriteEntityUpdateAdapter = UpdateAdapter(
@@ -562,6 +570,8 @@ class _$FavoriteDao extends FavoriteDao {
                   'name': item.name,
                   'type': item.type,
                   'size': item.size,
+                  'thumb': item.thumb,
+                  'sign': item.sign,
                   'updated_at': item.updatedAt
                 });
 
@@ -583,7 +593,7 @@ class _$FavoriteDao extends FavoriteDao {
   ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM favorite WHERE server_id = ?1 ORDER BY updated_at DESC LIMIT ?2 OFFSET ?3',
-        mapper: (Map<String, Object?> row) => FavoriteEntity(id: row['id'] as int?, serverId: row['server_id'] as int, path: row['path'] as String, name: row['name'] as String, type: row['type'] as int, size: row['size'] as int, updatedAt: row['updated_at'] as int),
+        mapper: (Map<String, Object?> row) => FavoriteEntity(id: row['id'] as int?, serverId: row['server_id'] as int, path: row['path'] as String, name: row['name'] as String, type: row['type'] as int, size: row['size'] as int, thumb: row['thumb'] as String?, sign: row['sign'] as String?, updatedAt: row['updated_at'] as int),
         arguments: [serverId, limit, offset]);
   }
 
@@ -595,7 +605,7 @@ class _$FavoriteDao extends FavoriteDao {
   ) async {
     return _queryAdapter.query(
         'SELECT * FROM favorite WHERE server_id = ?1 AND path = ?2 AND name = ?3',
-        mapper: (Map<String, Object?> row) => FavoriteEntity(id: row['id'] as int?, serverId: row['server_id'] as int, path: row['path'] as String, name: row['name'] as String, type: row['type'] as int, size: row['size'] as int, updatedAt: row['updated_at'] as int),
+        mapper: (Map<String, Object?> row) => FavoriteEntity(id: row['id'] as int?, serverId: row['server_id'] as int, path: row['path'] as String, name: row['name'] as String, type: row['type'] as int, size: row['size'] as int, thumb: row['thumb'] as String?, sign: row['sign'] as String?, updatedAt: row['updated_at'] as int),
         arguments: [serverId, path, name]);
   }
 

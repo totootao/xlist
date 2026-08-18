@@ -4,24 +4,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import 'package:xlist/gen/index.dart';
 import 'package:xlist/common/index.dart';
 import 'package:xlist/helper/index.dart';
+import 'package:xlist/models/index.dart';
 import 'package:xlist/constants/index.dart';
 import 'package:xlist/database/entity/index.dart';
 import 'package:xlist/pages/setting/favorite/index.dart';
 
 class FavoritePage extends GetView<FavoriteController> {
-  const FavoritePage({Key? key}) : super(key: key);
+  const FavoritePage({Key? key, this.showBackButton = true})
+      : super(key: key);
+
+  /// 是否显示返回按钮 (嵌入主页标签页时为 false)
+  final bool showBackButton;
 
   // NavigationBar
   CupertinoNavigationBar _buildNavigationBar() {
     return CupertinoNavigationBar(
       backgroundColor: CommonUtils.backgroundColor,
       border: Border.all(width: 0, color: Colors.transparent),
-      leading: CommonUtils.backButton,
+      leading: showBackButton ? CommonUtils.backButton : null,
       middle: Text('favorite'.tr),
       trailing: CupertinoButton(
         padding: EdgeInsets.zero,
@@ -31,12 +37,66 @@ class FavoritePage extends GetView<FavoriteController> {
     );
   }
 
-  /// 构建图标
-  /// [type] 文件类型
-  /// [name] 文件名
-  Widget _buildIcon(int type, String name) {
+  /// 构建预览图或图标
+  /// [entity] 收藏实体
+  Widget _buildIcon(FavoriteEntity entity) {
+    // 预览图地址: 优先使用服务端缩略图, 图片文件降级为直链预览
+    String? url = entity.thumb;
+    if (url == null || url.isEmpty) {
+      if (PreviewHelper.isImage(entity.name)) {
+        url = CommonUtils.getDownloadLink(
+          entity.path,
+          object: ObjectModel.fromJson(
+              {'name': entity.name, 'sign': entity.sign ?? ''}),
+          userInfo: UserModel.fromJson({'base_path': '/'}),
+        );
+      }
+    }
+
+    // 显示预览图
+    if (url != null && url.isNotEmpty) {
+      return Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: CommonUtils.isPad ? 60 : 130.sp,
+            height: CommonUtils.isPad ? 60 : 130.sp,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15.r),
+              child: CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.cover,
+                placeholder: (context, url) =>
+                    CupertinoActivityIndicator(radius: 8.0),
+                errorWidget: (context, url, error) => Icon(
+                  FileType.getIcon(entity.type, entity.name),
+                  size: CommonUtils.isPad ? 60 : 130.sp,
+                  color: Get.theme.primaryColor,
+                ),
+              ),
+            ),
+          ),
+          PreviewHelper.isVideo(entity.name)
+              ? Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: EdgeInsets.all(2.r),
+                    child: Icon(
+                      CupertinoIcons.video_camera_solid,
+                      size: CommonUtils.isPad ? 20 : 35.sp,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ),
+                )
+              : SizedBox(),
+        ],
+      );
+    }
+
+    // 显示文件类型图标
     return Icon(
-      FileType.getIcon(type, name),
+      FileType.getIcon(entity.type, entity.name),
       size: CommonUtils.isPad ? 60 : 130.sp,
       color: Get.theme.primaryColor,
     );
@@ -79,7 +139,7 @@ class FavoritePage extends GetView<FavoriteController> {
               child: Row(
                 children: [
                   SizedBox(width: CommonUtils.isPad ? 15 : 30.w),
-                  _buildIcon(entity.type, entity.name),
+                  _buildIcon(entity),
                   SizedBox(width: CommonUtils.isPad ? 10 : 20.w),
                   Container(
                     width: 750.w,

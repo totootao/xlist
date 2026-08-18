@@ -36,11 +36,20 @@ class DatabaseService extends GetxService {
         'CREATE INDEX `index_favorite_updated_at` ON `favorite` (`updated_at`)');
   });
 
+  // Database migration3to4
+  // 为最近浏览/收藏表添加预览图与签名字段
+  final migration3to4 = Migration(3, 4, (database) async {
+    await database.execute('ALTER TABLE `recent` ADD COLUMN `thumb` TEXT');
+    await database.execute('ALTER TABLE `recent` ADD COLUMN `sign` TEXT');
+    await database.execute('ALTER TABLE `favorite` ADD COLUMN `thumb` TEXT');
+    await database.execute('ALTER TABLE `favorite` ADD COLUMN `sign` TEXT');
+  });
+
   // Init
   Future<DatabaseService> init() async {
     _database = await $FloorXlistDatabase
         .databaseBuilder(name)
-        .addMigrations([migration1to2, migration2to3]).build();
+        .addMigrations([migration1to2, migration2to3, migration3to4]).build();
 
     return this;
   }

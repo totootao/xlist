@@ -12,11 +12,14 @@ import 'package:xlist/services/index.dart';
 import 'package:xlist/storages/index.dart';
 import 'package:xlist/repositorys/index.dart';
 import 'package:xlist/database/entity/index.dart';
+import 'package:xlist/pages/setting/favorite/index.dart';
+import 'package:xlist/pages/setting/recent/index.dart';
 
 class HomepageController extends GetxController {
   final userInfo = UserModel().obs; // 用户信息
   final objects = <ObjectModel>[].obs; // Object 数据
   final isFirstLoading = true.obs; // 是否是第一次加载
+  final selectedIndex = 0.obs; // 底部导航栏选中索引
   final serverId = Get.find<UserStorage>().serverId.val.obs;
   final sortType = Get.find<PreferencesStorage>().sortType.val.obs; // 排序方式
   final layoutType = Get.find<PreferencesStorage>().layoutType.val.obs; // 布局方式
@@ -33,6 +36,28 @@ class HomepageController extends GetxController {
 
   // 目录密码
   String password = '';
+
+  /// 切换底部导航栏标签
+  /// [index] 标签索引 (0 文件 / 1 收藏 / 2 最近浏览)
+  void changeTab(int index) {
+    selectedIndex.value = index;
+
+    // 收藏标签: 重新注册控制器以刷新数据
+    if (index == 1) {
+      if (Get.isRegistered<FavoriteController>()) {
+        Get.delete<FavoriteController>();
+      }
+      Get.put(FavoriteController());
+    }
+
+    // 最近浏览标签: 重新注册控制器以刷新数据
+    if (index == 2) {
+      if (Get.isRegistered<RecentController>()) {
+        Get.delete<RecentController>();
+      }
+      Get.put(RecentController());
+    }
+  }
 
   @override
   void onInit() async {

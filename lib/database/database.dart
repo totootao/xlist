@@ -7,7 +7,7 @@ import 'package:xlist/database/entity/index.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 3, entities: [
+@Database(version: 4, entities: [
   ServerEntity,
   RecentEntity,
   DownloadEntity,
