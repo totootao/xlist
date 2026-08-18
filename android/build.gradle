@@ -36,15 +36,19 @@ subprojects {
 }
 
 // 强制所有插件模块使用 compileSdk 34, 修复 lStar 资源错误
-// (在插件应用时立即覆盖, 避免 afterEvaluate 时序问题)
+// (在模块评估完成后覆盖, 排除已被提前评估的 :app 模块)
 subprojects {
-    plugins.withId('com.android.library') {
-        try {
-            project.android.compileSdkVersion 34
-        } catch (ignored) {
-            try {
-                project.android.compileSdk = 34
-            } catch (ignored2) {}
+    if (it.path != ':app' && !it.state.executed) {
+        it.afterEvaluate { project ->
+            if (project.plugins.hasPlugin('com.android.library')) {
+                try {
+                    project.android.compileSdkVersion 34
+                } catch (ignored) {
+                    try {
+                        project.android.compileSdk = 34
+                    } catch (ignored2) {}
+                }
+            }
         }
     }
 }
