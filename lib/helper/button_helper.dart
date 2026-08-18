@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:xlist/common/index.dart';
 import 'package:xlist/helper/index.dart';
+import 'package:xlist/models/index.dart';
 import 'package:xlist/storages/index.dart';
 import 'package:xlist/constants/index.dart';
 
@@ -41,11 +42,16 @@ class ButtonHelper {
   }
 
   /// 构建下拉按钮
+  ///
+  /// [favoriteFolderPath] 收藏当前文件夹 - 父目录路径 (仅文件夹详情页传入)
+  /// [favoriteFolderName] 收藏当前文件夹 - 文件夹名称 (仅文件夹详情页传入)
   static Widget createPullDownButton({
     required dynamic controller,
     required String path,
     required String source,
     required String pageTag,
+    String? favoriteFolderPath,
+    String? favoriteFolderName,
   }) {
     List<PullDownMenuEntry> items = [];
 
@@ -107,6 +113,24 @@ class ButtonHelper {
         ),
         PullDownMenuDivider.large(),
       ]);
+    }
+
+    // 收藏当前文件夹 (仅文件夹详情页显示)
+    if (favoriteFolderName != null && favoriteFolderPath != null) {
+      items.add(PullDownMenuItem(
+        title: 'pull_down_favorite_folder'.tr,
+        icon: CupertinoIcons.star,
+        onTap: () async => await CommonUtils.addFavorite(
+          ObjectModel.fromJson({
+            'name': favoriteFolderName,
+            'type': FileType.FOLDER,
+            'is_dir': true,
+            'size': 0,
+          }),
+          favoriteFolderPath,
+          favoriteFolderName,
+        ),
+      ));
     }
 
     // 刷新

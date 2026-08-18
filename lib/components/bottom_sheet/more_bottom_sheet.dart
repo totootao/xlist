@@ -32,6 +32,17 @@ class MoreBottomSheet extends StatefulWidget {
 class _MoreBottomSheetState extends State<MoreBottomSheet> {
   ObjectModel get object => widget.object;
   String get source => widget.source;
+  bool isFavorite = false; // 是否已收藏
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 查询收藏状态
+    CommonUtils.isFavorite(widget.path, object.name ?? '').then((value) {
+      if (mounted) setState(() => isFavorite = value);
+    });
+  }
 
   /// 构建图标
   Widget _buildIcon() {
@@ -150,8 +161,9 @@ class _MoreBottomSheetState extends State<MoreBottomSheet> {
               },
             ),
             _buildListItem(
-              title: 'favorite'.tr,
-              icon: CupertinoIcons.star,
+              title: isFavorite ? 'cancel_favorite'.tr : 'favorite'.tr,
+              icon:
+                  isFavorite ? CupertinoIcons.star_fill : CupertinoIcons.star,
               onTap: () async {
                 Get.back();
                 await CommonUtils.addFavorite(

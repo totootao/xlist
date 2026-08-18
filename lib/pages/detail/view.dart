@@ -39,6 +39,8 @@ class DetailPage extends StatelessWidget {
           path: '${controller.path}${controller.name}',
           source: PageSource.DETAIL,
           pageTag: tag ?? '',
+          favoriteFolderPath: controller.path,
+          favoriteFolderName: controller.name,
         ),
       ),
     );
