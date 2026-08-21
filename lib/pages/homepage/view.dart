@@ -170,62 +170,75 @@ class Homepage extends GetView<HomepageController> {
     );
   }
 
-  // 底部导航栏
+  // 底部导航栏 (currentIndex/onTap 由 CupertinoTabScaffold 注入)
   Widget _buildTabBar() {
-    return SafeArea(
-      top: false,
-      child: Obx(
-        () => CupertinoTabBar(
-          backgroundColor:
-              Get.isDarkMode ? Color.fromARGB(255, 18, 18, 18) : Colors.white,
-          border: Border.all(width: 0, color: Colors.transparent),
-          currentIndex: controller.selectedIndex.value,
-          onTap: controller.changeTab,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.folder_fill,
-                  size: CommonUtils.navIconSize),
-              label: 'homepage_tab_files'.tr,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.star_fill,
-                  size: CommonUtils.navIconSize),
-              label: 'favorite'.tr,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.clock_fill,
-                  size: CommonUtils.navIconSize),
-              label: 'recent'.tr,
-            ),
-          ],
+    return CupertinoTabBar(
+      backgroundColor:
+          Get.isDarkMode ? Color.fromARGB(255, 18, 18, 18) : Colors.white,
+      border: Border.all(width: 0, color: Colors.transparent),
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.folder_fill,
+              size: CommonUtils.navIconSize),
+          label: 'homepage_tab_files'.tr,
         ),
-      ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.star_fill, size: CommonUtils.navIconSize),
+          label: 'favorite'.tr,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.clock_fill, size: CommonUtils.navIconSize),
+          label: 'recent'.tr,
+        ),
+      ],
+    );
+  }
+
+  /// 标签页视图
+  /// 每个标签页拥有独立的嵌套导航器, 页面跳转发生在嵌套导航器内,
+  /// 从而保证底部导航栏 (文件/收藏/最近浏览) 始终置顶显示。
+  ///
+  /// [id] 嵌套导航器 ID
+  /// [builder] 标签页根内容
+  Widget _buildTabView(int id, {required WidgetBuilder builder}) {
+    return CupertinoTabView(
+      navigatorKey: Get.nestedKey(id),
+      navigatorObservers: [GetObserver(null, Get.routing)],
+      onGenerateRoute: (settings) => PageRedirect(
+        settings: settings,
+        unknownRoute: AppPages.unknownRoute,
+      ).page(),
+      builder: builder,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            // 标签页内容
-            Expanded(
-              child: Obx(
-                () => controller.selectedIndex.value == 0
-                    ? _buildFilesTab()
-                    : controller.selectedIndex.value == 1
-                        ? FavoritePage(showBackButton: false)
-                        : RecentPage(showBackButton: false),
-              ),
-            ),
-
-            // 底部导航栏
-            _buildTabBar(),
-          ],
-        ),
-      ),
+    // CupertinoTabView 内置 NavigatorPopHandler:
+    // 系统返回键会优先弹出当前标签页嵌套导航器中的页面
+    return CupertinoTabScaffold(
+      controller: controller.tabController,
+      tabBar: _buildTabBar(),
+      tabBuilder: (context, index) {
+        switch (index) {
+          case 0: // 文件
+            return _buildTabView(
+              NavigatorHelper.FILES_TAB_ID,
+              builder: (_) => _buildFilesTab(),
+            );
+          case 1: // 收藏
+            return _buildTabView(
+              NavigatorHelper.FAVORITE_TAB_ID,
+              builder: (_) => FavoritePage(showBackButton: false),
+            );
+          case 2: // 最近浏览
+          default:
+            return _buildTabView(
+              NavigatorHelper.RECENT_TAB_ID,
+              builder: (_) => RecentPage(showBackButton: false),
+            );
+        }
+      },
     );
   }
 

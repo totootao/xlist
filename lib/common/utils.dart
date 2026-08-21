@@ -15,6 +15,7 @@ import 'package:xlist/services/index.dart';
 import 'package:xlist/storages/index.dart';
 import 'package:xlist/constants/index.dart';
 import 'package:xlist/database/entity/index.dart';
+import 'package:xlist/helper/navigator_helper.dart';
 
 // 公共工具类
 class CommonUtils {
@@ -72,11 +73,12 @@ class CommonUtils {
       MediaQuery.of(Get.context!).size.shortestSide >= 600;
 
   /// 获取导航栏返回按钮
+  /// 智能返回: 标签视图内弹出嵌套导航器页面, 全屏页面弹出根导航器
   static Widget get backButton => CupertinoButton(
         padding: EdgeInsets.zero,
         alignment: Alignment.centerLeft,
         child: Icon(CupertinoIcons.chevron_back, size: isPad ? 30 : 80.sp),
-        onPressed: () => Get.back(),
+        onPressed: () => NavigatorHelper.back(),
       );
 
   /// 获取直链下载地址

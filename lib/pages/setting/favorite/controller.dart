@@ -31,6 +31,11 @@ class FavoriteController extends GetxController {
     super.onInit();
   }
 
+  /// 刷新收藏列表 (切换标签页时调用)
+  void refreshData() {
+    pagingController.refresh();
+  }
+
   /// 获取收藏列表
   /// [currentIndex] 当前游标
   Future<void> getFavoriteListData(int currentIndex) async {

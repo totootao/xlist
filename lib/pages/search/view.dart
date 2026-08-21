@@ -39,7 +39,8 @@ class SearchPage extends GetView<SearchController> {
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerRight,
                 child: Text('取消'),
-                onPressed: () => Get.back(),
+                // 智能返回: 搜索页可能位于嵌套导航器或根导航器
+                onPressed: () => NavigatorHelper.back(),
               ),
             )
           ],

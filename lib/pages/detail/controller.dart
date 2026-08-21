@@ -7,6 +7,7 @@ import 'package:xlist/common/index.dart';
 import 'package:xlist/models/index.dart';
 import 'package:xlist/services/index.dart';
 import 'package:xlist/storages/index.dart';
+import 'package:xlist/helper/index.dart';
 import 'package:xlist/repositorys/index.dart';
 import 'package:xlist/pages/homepage/index.dart';
 import 'package:xlist/database/entity/index.dart';
@@ -94,7 +95,8 @@ class DetailController extends GetxController {
           ],
         );
         if (text == null) {
-          Get.back();
+          // 智能返回: 取消密码输入时返回上一页 (详情页可能位于嵌套导航器)
+          NavigatorHelper.back();
           return;
         }
 

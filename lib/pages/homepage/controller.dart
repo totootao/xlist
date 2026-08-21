@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
@@ -24,6 +25,9 @@ class HomepageController extends GetxController {
   final sortType = Get.find<PreferencesStorage>().sortType.val.obs; // 排序方式
   final layoutType = Get.find<PreferencesStorage>().layoutType.val.obs; // 布局方式
 
+  // 底部导航栏控制器 (CupertinoTabScaffold)
+  final CupertinoTabController tabController = CupertinoTabController();
+
   // 显示预览图
   final isShowPreview = Get.find<PreferencesStorage>().isShowPreview.val.obs;
 
@@ -37,31 +41,28 @@ class HomepageController extends GetxController {
   // 目录密码
   String password = '';
 
-  /// 切换底部导航栏标签
-  /// [index] 标签索引 (0 文件 / 1 收藏 / 2 最近浏览)
-  void changeTab(int index) {
+  /// 标签页切换监听 (CupertinoTabScaffold 点击底部导航栏时触发)
+  void _onTabChanged() {
+    final index = tabController.index;
     selectedIndex.value = index;
 
-    // 收藏标签: 重新注册控制器以刷新数据
-    if (index == 1) {
-      if (Get.isRegistered<FavoriteController>()) {
-        Get.delete<FavoriteController>();
-      }
-      Get.put(FavoriteController());
+    // 收藏标签: 刷新数据
+    if (index == 1 && Get.isRegistered<FavoriteController>()) {
+      Get.find<FavoriteController>().refreshData();
     }
 
-    // 最近浏览标签: 重新注册控制器以刷新数据
-    if (index == 2) {
-      if (Get.isRegistered<RecentController>()) {
-        Get.delete<RecentController>();
-      }
-      Get.put(RecentController());
+    // 最近浏览标签: 刷新数据
+    if (index == 2 && Get.isRegistered<RecentController>()) {
+      Get.find<RecentController>().refreshData();
     }
   }
 
   @override
   void onInit() async {
     super.onInit();
+
+    // 监听底部导航栏切换
+    tabController.addListener(_onTabChanged);
 
     // 获取服务器信息
     final server = await DatabaseService.to.database.serverDao
@@ -215,6 +216,10 @@ class HomepageController extends GetxController {
   @override
   void onClose() {
     super.onClose();
+
+    // 移除监听并销毁底部导航栏控制器
+    tabController.removeListener(_onTabChanged);
+    tabController.dispose();
 
     // 解绑进度监听
     DownloadService.to.unbindBackgroundIsolate();

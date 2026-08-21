@@ -22,6 +22,16 @@ class FavoritePage extends GetView<FavoriteController> {
   /// 是否显示返回按钮 (嵌入主页标签页时为 false)
   final bool showBackButton;
 
+  /// 标签页常驻时控制器可能被独立页面 (设置-收藏) 的路由释放,
+  /// 此处自动重新注册, 保证标签页始终可用
+  @override
+  FavoriteController get controller {
+    if (!Get.isRegistered<FavoriteController>()) {
+      Get.put(FavoriteController());
+    }
+    return Get.find<FavoriteController>();
+  }
+
   // NavigationBar
   CupertinoNavigationBar _buildNavigationBar() {
     return CupertinoNavigationBar(

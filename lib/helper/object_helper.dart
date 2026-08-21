@@ -18,6 +18,7 @@ import 'package:xlist/pages/detail/index.dart';
 import 'package:xlist/pages/homepage/index.dart';
 import 'package:xlist/pages/directory/index.dart';
 import 'package:xlist/helper/preview_helper.dart';
+import 'package:xlist/helper/navigator_helper.dart';
 
 class ObjectHelper {
   /// 文件点击事件
@@ -32,12 +33,8 @@ class ObjectHelper {
   }) {
     // 文件夹
     if (type == FileType.FOLDER) {
-      final tag = '${path}${name}';
-      Get.to(
-        () => DetailPage(tag: tag, previousPageTitle: '返回'),
-        routeName: '${Routes.DETAIL}${tag}',
-        arguments: {'path': path, 'name': name},
-      );
+      // 嵌套导航: 首页标签视图内在嵌套导航器中跳转, 底部导航栏常驻
+      NavigatorHelper.toDetail(path: path, name: name);
       return;
     }
 
@@ -73,6 +70,12 @@ class ObjectHelper {
   }
 
   /// 刷新列表
+  ///
+  /// 嵌套导航说明:
+  /// 详情页可能位于标签页嵌套导航器或根导航器中 (设置-收藏/最近浏览进入),
+  /// 目录选择页始终位于根导航器, 移动/复制完成后需弹出根导航器中的
+  /// 目录选择页, 详情页 (无论位于哪个导航器) 刷新后保持在原位。
+  ///
   /// [source] 来源
   /// [pageTag] 页面标签
   static void refreshObjectList({
@@ -84,15 +87,14 @@ class ObjectHelper {
       case PageSource.DETAIL:
         await Get.find<DetailController>(tag: pageTag)
             .getObjectList(refresh: refresh);
-        Get.until((route) => Get.currentRoute.startsWith(Routes.DETAIL));
+        NavigatorHelper.popDirectoryPages();
         break;
       case PageSource.HOMEPAGE:
         await Get.find<HomepageController>().getObjectList(refresh: refresh);
-        Get.until((route) => Get.currentRoute.startsWith(Routes.HOMEPAGE));
+        NavigatorHelper.popDirectoryPages();
         break;
       case PageSource.DIRECTORY:
         await Get.find<DirectoryController>(tag: pageTag).getDirectoryList();
-        Get.until((route) => Get.currentRoute.startsWith(Routes.DIRECTORY));
         break;
       default:
         break;

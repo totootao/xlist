@@ -4,7 +4,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import 'package:xlist/models/index.dart';
 import 'package:xlist/storages/index.dart';
-import 'package:xlist/routes/app_pages.dart';
+import 'package:xlist/helper/navigator_helper.dart';
 import 'package:xlist/pages/setting/index.dart';
 import 'package:xlist/pages/homepage/index.dart';
 import 'package:xlist/database/entity/index.dart';
@@ -69,7 +69,10 @@ class ServerController extends GetxController {
       if (userInfo.id == null) throw 'toast_get_user_info_fail'.tr;
 
       _homepageController.getObjectList();
-      Get.until((route) => Get.currentRoute == Routes.HOMEPAGE);
+
+      // 弹出设置页返回首页, 并重置所有标签页嵌套导航栈 (清除旧服务器的目录页)
+      Get.key.currentState?.popUntil((route) => route.isFirst);
+      NavigatorHelper.resetTabs();
 
       // 重置设置页面信息
       _settingController.serverId.value = server.id!;
@@ -119,6 +122,9 @@ class ServerController extends GetxController {
       _homepageController.serverId.value = 0;
       _homepageController.userInfo.value = UserModel();
       _homepageController.objects.clear();
+
+      // 重置所有标签页嵌套导航栈 (清除已删除服务器的目录页)
+      NavigatorHelper.resetTabs();
     }
 
     // 设置页面

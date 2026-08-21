@@ -31,6 +31,11 @@ class RecentController extends GetxController {
     super.onInit();
   }
 
+  /// 刷新最近浏览列表 (切换标签页时调用)
+  void refreshData() {
+    pagingController.refresh();
+  }
+
   /// 获取最近浏览数据
   /// [currentIndex] 当前游标
   Future<void> getRecentListData(int currentIndex) async {

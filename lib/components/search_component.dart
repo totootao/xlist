@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:xlist/common/index.dart';
-import 'package:xlist/routes/app_pages.dart';
+import 'package:xlist/helper/index.dart';
 
 class SearchComponent extends StatelessWidget {
   final String path;
@@ -17,7 +17,8 @@ class SearchComponent extends StatelessWidget {
     final color = Get.isDarkMode ? Colors.grey[500] : Colors.grey[600];
 
     return GestureDetector(
-      onTap: () => Get.toNamed(Routes.SEARCH, arguments: {'path': path}),
+      // 嵌套导航: 首页标签视图内在嵌套导航器中打开搜索页, 底部导航栏常驻
+      onTap: () => NavigatorHelper.toSearch(path: path),
       child: Container(
         height: CommonUtils.isPad ? 38 : 90.h,
         decoration: BoxDecoration(

@@ -82,7 +82,8 @@ class DirectoryController extends GetxController {
           ],
         );
         if (text == null) {
-          Get.back();
+          // 智能返回: 取消密码输入时返回上一页
+          NavigatorHelper.back();
           return;
         }
 
