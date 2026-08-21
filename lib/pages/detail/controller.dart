@@ -23,6 +23,10 @@ class DetailController extends GetxController {
   // 显示预览图
   final isShowPreview = Get.find<PreferencesStorage>().isShowPreview.val.obs;
 
+  // 主页悬浮按钮是否显示 (单手操作优化: 向下浏览时隐藏, 上滑时出现)
+  final isShowHomeButton = true.obs;
+  double _lastScrollPixels = 0; // 上次滚动位置
+
   // 获取参数
   final String path = Get.arguments['path'];
   final String name = Get.arguments['name'];
@@ -40,6 +44,9 @@ class DetailController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
+
+    // 滚动监听: 控制主页悬浮按钮显隐
+    scrollController.addListener(_onScroll);
 
     // 获取目录密码
     final passwordManager = await DatabaseService.to.database.passwordManagerDao
@@ -125,9 +132,28 @@ class DetailController extends GetxController {
     } catch (e) {}
   }
 
+  /// 滚动监听: 向下浏览 (内容上移) 隐藏悬浮按钮, 向上滚动时重新显示
+  void _onScroll() {
+    if (!scrollController.hasClients) return;
+
+    final pixels = scrollController.position.pixels;
+    final delta = pixels - _lastScrollPixels;
+
+    // 阈值过滤微小抖动 (如回弹/惯性)
+    if (delta > 2 && isShowHomeButton.value) {
+      isShowHomeButton.value = false;
+    } else if (delta < -2 && !isShowHomeButton.value) {
+      isShowHomeButton.value = true;
+    }
+    _lastScrollPixels = pixels;
+  }
+
   @override
   void onClose() {
     super.onClose();
+
+    // 移除滚动监听
+    scrollController.removeListener(_onScroll);
 
     // 解绑进度监听
     DownloadService.to.unbindBackgroundIsolate();

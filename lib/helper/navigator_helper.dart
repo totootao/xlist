@@ -94,6 +94,21 @@ class NavigatorHelper {
     }
   }
 
+  /// 一键返回主页 (浏览页右下角悬浮按钮)
+  ///
+  /// 标签视图内: 弹出当前标签页嵌套导航器的全部目录页, 回到标签根
+  /// (文件标签 → 主页, 收藏/最近浏览标签 → 对应列表);
+  /// 全屏页面栈 (设置-收藏/最近浏览进入的详情页): 弹出全部页面回到首页。
+  static void backToHome() {
+    if (isRootNavigatorActive) {
+      Get.key.currentState?.popUntil((route) => route.isFirst);
+      return;
+    }
+    Get.nestedKey(currentTabId)
+        ?.currentState
+        ?.popUntil((route) => route.isFirst);
+  }
+
   /// 弹出根导航器中的目录选择页
   /// (移动 / 复制操作完成后调用, 详情页可能位于嵌套导航器或根导航器)
   static void popDirectoryPages() {
