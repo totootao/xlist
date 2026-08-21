@@ -76,7 +76,7 @@ class NavigatorHelper {
     }
 
     // 标签视图内: 优先弹出当前标签页嵌套导航器中的页面
-    final nestedState = Get.nestedKey(currentTabId).currentState;
+    final nestedState = Get.nestedKey(currentTabId)?.currentState;
     if (nestedState?.canPop() == true) {
       Get.back(result: result, id: currentTabId);
       return;
@@ -90,7 +90,7 @@ class NavigatorHelper {
   /// (切换 / 删除服务器后清除旧的目录栈)
   static void resetTabs() {
     for (final id in [FILES_TAB_ID, FAVORITE_TAB_ID, RECENT_TAB_ID]) {
-      Get.nestedKey(id).currentState?.popUntil((route) => route.isFirst);
+      Get.nestedKey(id)?.currentState?.popUntil((route) => route.isFirst);
     }
   }
 

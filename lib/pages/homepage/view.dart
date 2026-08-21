@@ -171,7 +171,7 @@ class Homepage extends GetView<HomepageController> {
   }
 
   // 底部导航栏 (currentIndex/onTap 由 CupertinoTabScaffold 注入)
-  Widget _buildTabBar() {
+  CupertinoTabBar _buildTabBar() {
     return CupertinoTabBar(
       backgroundColor:
           Get.isDarkMode ? Color.fromARGB(255, 18, 18, 18) : Colors.white,
